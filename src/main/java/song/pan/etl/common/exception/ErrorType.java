@@ -23,7 +23,6 @@ public enum ErrorType {
     }
 
     ErrorType(int code) {
-
         this.code = code;
     }
 }

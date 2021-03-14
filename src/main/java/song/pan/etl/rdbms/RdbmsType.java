@@ -1,5 +1,6 @@
 package song.pan.etl.rdbms;
 
+import lombok.Getter;
 import song.pan.etl.rdbms.impl.MySQLServer;
 import song.pan.etl.rdbms.impl.SQLServer;
 import song.pan.etl.rdbms.impl.SybaseServer;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
  * @author Song Pan
  * @version 1.0.0
  */
+@Getter
 public enum RdbmsType {
 
     SYBASE(Pattern.compile("jdbc:sybase.*"), "com.sybase.jdbc4.jdbc.SybDriver", SybaseServer.class),

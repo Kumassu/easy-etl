@@ -66,11 +66,8 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
      * Copy a table's data to other table
      * @param from data source
      * @param to destination
-     * @param truncate if the destination table exists, should truncate it
-     *                 before copying if this field is {@code true},
-     *                 append otherwise.
      */
-    void copyTable(Table from, Table to, boolean truncate);
+    void copyTable(Table from, Table to);
 
 
     /**
@@ -83,7 +80,7 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
     void copyToGenerateId(String query, Table to, String uid);
 
 
-    void dropTable();
+    void dropTable(Table table);
 
 
     long count(String query);
@@ -153,7 +150,7 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
     List<String> primaryKeyOf(Table table);
 
 
-    List<Index> indicesOf(Table table);
+    List<Index> indexesOf(Table table);
 
 
     /**

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ConnectionProperties {
     private String name;
-    private String urls;
+    private String url;
     private String driver;
     private String user;
     private String password;
