@@ -2,7 +2,6 @@ package song.pan.etl.rdbms;
 
 import song.pan.etl.common.exception.DisconnectException;
 import song.pan.etl.common.exception.LoginException;
-import song.pan.etl.rdbms.element.ConnectionProperties;
 
 /**
  * Define life cycles of database server

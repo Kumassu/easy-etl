@@ -1,7 +1,8 @@
-package song.pan.etl.rdbms.element;
+package song.pan.etl.rdbms.impl;
 
 import lombok.Getter;
 import lombok.Setter;
+import song.pan.etl.rdbms.element.Index;
 
 /**
  * @author Song Pan

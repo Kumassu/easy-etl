@@ -1,4 +1,4 @@
-package song.pan.etl.rdbms.element;
+package song.pan.etl.rdbms;
 
 import lombok.Getter;
 import lombok.Setter;

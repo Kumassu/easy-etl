@@ -8,6 +8,7 @@ import song.pan.etl.common.exception.IllegalArgumentException;
 import song.pan.etl.common.exception.InvalidSQLException;
 import song.pan.etl.common.exception.SystemException;
 import song.pan.etl.rdbms.AbstractRdbmsServer;
+import song.pan.etl.rdbms.DataType;
 import song.pan.etl.rdbms.RdbmsType;
 import song.pan.etl.rdbms.element.*;
 
@@ -20,7 +21,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static song.pan.etl.rdbms.element.DataType.of;
+import static song.pan.etl.rdbms.DataType.of;
 
 /**
  * @author Song Pan

@@ -1,7 +1,6 @@
 package song.pan.etl.rdbms;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import song.pan.etl.rdbms.element.ConnectionProperties;
 
 import javax.sql.DataSource;
 

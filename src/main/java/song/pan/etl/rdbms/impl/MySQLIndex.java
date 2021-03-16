@@ -1,4 +1,6 @@
-package song.pan.etl.rdbms.element;
+package song.pan.etl.rdbms.impl;
+
+import song.pan.etl.rdbms.element.Index;
 
 /**
  * @author Song Pan
