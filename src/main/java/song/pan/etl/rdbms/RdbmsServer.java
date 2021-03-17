@@ -138,7 +138,7 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
     /**
      * @return Return the number of top rows in the query results
      */
-    List<Row> topRowsOf(String query, int num);
+    List<Row> topRowsOf(String query, long num);
 
 
     List<Column> columnsOf(Table table);

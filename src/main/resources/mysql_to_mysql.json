@@ -1,0 +1,39 @@
+{
+  "source" : {
+    "name" : "DB_FROM",
+    "url" : "jdbc:mysql://localhost:3306/?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai",
+    "driver" : "com.mysql.cj.jdbc.Driver",
+    "user" : "root",
+    "password" : "123456",
+    "table" : "city",
+    "catalog" : "world",
+    "columns" : [
+      {
+        "name" : "Name"
+      },
+      {
+        "name" : "CountryCode"
+      },
+      {
+        "name" : "District"
+      },
+      {
+        "name" : "Population"
+      }
+    ]
+  },
+  "destination" : {
+    "name" : "DB_TO",
+    "url" : "jdbc:mysql://localhost:3306/?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai",
+    "driver" : "com.mysql.cj.jdbc.Driver",
+    "user" : "root",
+    "password" : "123456",
+    "table" : "city",
+    "catalog" : "toolkit"
+  },
+  "setting" : {
+    "paginationStrategy" : "GENERATE",
+    "extractChunkSize" : 100,
+    "loadChunkSize" : 100
+  }
+}

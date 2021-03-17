@@ -34,6 +34,12 @@ public enum PaginationStrategy {
      * generate an auto-increased id as pagination key
      */
     GENERATE,
+
+
+    /**
+     * For mysql keywords offset limit
+     */
+    OFFSET_LIMIT,
     ;
 
 

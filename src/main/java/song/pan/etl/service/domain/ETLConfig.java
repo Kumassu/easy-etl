@@ -26,6 +26,8 @@ public class ETLConfig {
 
     private Table destTable;
 
+    private String query;
+
     /**
      * SQL scripts to execute in source server before ETL
      */
@@ -64,6 +66,7 @@ public class ETLConfig {
     private String replicaDatabase;
     private Table replicaTable;
 
+    private boolean dropTargetTable;
 
     /**
      * If target table exists in destination server, a substitute table will be created

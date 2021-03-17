@@ -21,6 +21,7 @@ import java.util.List;
 @ApiModel("ETL Config")
 public class ETLConfigVO {
 
+
     private Source source;
     private Destination destination;
     private RuntimeSetting setting;
@@ -29,7 +30,7 @@ public class ETLConfigVO {
     @Getter
     @Setter
     public static class CommonDatabaseProperties extends ConnectionProperties {
-        private String tableName;
+        private String table;
         private String catalog;
         private String schema;
         private List<String> preScripts;
@@ -44,6 +45,7 @@ public class ETLConfigVO {
         private String query;
         private List<String> paginationKeys;
     }
+
 
     @Getter
     @Setter
@@ -64,9 +66,5 @@ public class ETLConfigVO {
         private PaginationStrategy paginationStrategy;
         private BatchInsertStrategy batchInsertStrategy;
     }
-
-
-
-
 
 }

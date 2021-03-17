@@ -48,8 +48,12 @@ public class MySQLServer extends AbstractRdbmsServer {
         // Number
         dataTypes.add(of(Types.TINYINT, "TINYINT", int.class));
         dataTypes.add(of(Types.SMALLINT, "SMALLINT", int.class));
-        dataTypes.add(of(Types.INTEGER, "MEDIUMINT", int.class));
+
+        dataTypes.add(of(Types.INTEGER, "INT", long.class));
         dataTypes.add(of(Types.INTEGER, "INTEGER", long.class));
+        dataTypes.add(of(Types.INTEGER, "MEDIUMINT", int.class));
+
+
         dataTypes.add(of(Types.BIGINT, "BIGINT", BigInteger.class));
         dataTypes.add(of(Types.DECIMAL, "DECIMAL", BigDecimal.class));
         dataTypes.add(of(Types.FLOAT, "FLOAT", Double.class));
@@ -143,7 +147,8 @@ public class MySQLServer extends AbstractRdbmsServer {
             jdbcTemplate.update("DROP TABLE " + toTable);
         }
         String stmt = "CREATE TABLE " + toTable + "(" + uid + " INT UNSIGNED AUTO_INCREMENT," +
-                to.getColumns().stream().map(this::format).collect(Collectors.joining(",")) + ")";
+                to.getColumns().stream().map(this::format).collect(Collectors.joining(",")) +
+                ", PRIMARY KEY (" + uid + ")" + ")";
         log.info("[Mysql#copyToGenerateId] {}", stmt);
         jdbcTemplate.update(stmt);
 
@@ -197,7 +202,7 @@ public class MySQLServer extends AbstractRdbmsServer {
     }
 
     @Override
-    public List<Row> topRowsOf(String query, int num) {
+    public List<Row> topRowsOf(String query, long num) {
         return getJdbcTemplate().queryForList("SELECT * FROM (" + query + ") t LIMIT " + num)
                 .stream().map(Row::fromMap).collect(Collectors.toList());
     }
@@ -212,8 +217,8 @@ public class MySQLServer extends AbstractRdbmsServer {
                     String nullable = (String) e.get("Null");
                     int length = 0;
                     if (type.contains("(") && type.contains(")")) {
-                        type = type.substring(0, type.indexOf("("));
                         length = Integer.parseInt(type.substring(type.indexOf("(") + 1, type.indexOf(")")));
+                        type = type.substring(0, type.indexOf("("));
                     }
                     Column column = new Column(name, type, null, length);
                     column.setNullable(nullable.toUpperCase().equals("YES"));
@@ -237,7 +242,7 @@ public class MySQLServer extends AbstractRdbmsServer {
         getJdbcTemplate().queryForList("show index from " + fullQualifiedNameOf(table)).forEach(row -> {
             String keyName = (String) row.get("Key_name");
             String columnName = (String) row.get("Column_name");
-            boolean unique = ((int) row.get("No_unique")) == 0;
+            boolean unique = ((int) row.get("Non_unique")) == 0;
 
             Optional<Index> index = indices.stream().filter(i -> i.getName().equals(keyName)).findAny();
             if (index.isPresent()) {
@@ -253,20 +258,9 @@ public class MySQLServer extends AbstractRdbmsServer {
         return indices;
     }
 
-
-    public static void main(String[] args) {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/toolkit?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai");
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUsername("root");
-        dataSource.setPassword("123456");
-
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        List<Map<String, Object>> maps = jdbcTemplate.queryForList("desc toolkit.memo");
-
-        maps.forEach(System.out::println);
+    @Override
+    public List<Row> query(String query, long offset, long limit) {
+        return query(query + " limit " + offset + ", " + limit);
     }
 
 }

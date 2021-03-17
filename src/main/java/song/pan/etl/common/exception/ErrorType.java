@@ -10,6 +10,7 @@ public enum ErrorType {
     INVALID_SQL(401),
     LOGIN_FAIL(402),
     DISCONNECT_FAIL(403),
+    INCORRECT_LOAD_ROW(501),
     SYSTEM_ERROR(500),
     ;
 

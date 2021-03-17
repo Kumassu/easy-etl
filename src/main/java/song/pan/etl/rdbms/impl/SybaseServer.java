@@ -213,7 +213,7 @@ public class SybaseServer extends AbstractRdbmsServer {
     }
 
     @Override
-    public List<Row> topRowsOf(String query, int num) {
+    public List<Row> topRowsOf(String query, long num) {
         int fromIndex = query.toLowerCase().indexOf("select ") + 7;
         return getJdbcTemplate().queryForList("SELECT TOP " + num + " " + query.substring(fromIndex))
                 .stream().map(Row::fromMap).collect(Collectors.toList());

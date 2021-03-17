@@ -1,5 +1,6 @@
 package song.pan.etl.service.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +18,8 @@ public class ETLTask {
 
     private ETLConfig config;
     private ETLStatus status;
+
+    @JsonIgnore
     private List<ThreadPoolExecutor> threadPools;
 
     public ETLTask(ETLConfig config) {

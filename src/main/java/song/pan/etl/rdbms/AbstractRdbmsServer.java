@@ -115,6 +115,7 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
 
     @Override
     public void disconnect() {
+        log.info("[{}] Disconnect from {}", getType(), this);
         Optional.ofNullable(dataSource).ifPresent(ds -> {
             if (ds instanceof HikariDataSource) {
                 ((HikariDataSource) ds).close();
@@ -152,7 +153,7 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
 
     @Override
     public void dropTable(Table table) {
-        getJdbcTemplate().update("DROP TABLE" + fullQualifiedNameOf(table));
+        getJdbcTemplate().update("DROP TABLE " + fullQualifiedNameOf(table));
     }
 
     @Override
@@ -222,10 +223,10 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
     }
 
     @Override
-    public Row lastRowOf(String query, List<String> orderBys) {
+    public Row lastRowOf(String query, List<String> columns) {
         Row lastRow = new Row();
-        for (int i = 0; i < orderBys.size(); i++) {
-            String ci = orderBys.get(i);
+        for (int i = 0; i < columns.size(); i++) {
+            String ci = columns.get(i);
             StringBuilder findMax = new StringBuilder("SELECT MAX(").append(ci).append(") FROM (").append(query).append(") t");
             if (i != 0) {
                 int count = 0;
@@ -237,9 +238,9 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
                     }
                     findMax.append(entry.getKey()).append(" = ").append(format(entry.getValue()));
                 }
-                Object max = getJdbcTemplate().queryForObject(findMax.toString(), Object.class);
-                lastRow.setColumn(ci, max);
             }
+            Object max = getJdbcTemplate().queryForObject(findMax.toString(), Object.class);
+            lastRow.setColumn(ci, max);
         }
         return lastRow;
     }
@@ -313,7 +314,7 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
     protected void setTypeIndex(Column column) {
         DataType dataType = typeOf(column.getType());
         if (null == dataType) {
-            throw new IllegalArgumentException("Type not support: " + column.getType());
+            throw new IllegalArgumentException("Type not support: " + column.getType() + ", column: " + column.getName());
         }
         column.setTypeIndex(dataType.getTypeIndex());
     }
