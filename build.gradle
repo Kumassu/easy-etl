@@ -37,6 +37,7 @@ dependencies {
     compile 'mysql:mysql-connector-java:8.0.22'
 
     compile 'com.google.code.gson:gson:2.8.5'
+    compile 'com.google.guava:guava:30.1-jre'
     compile 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }

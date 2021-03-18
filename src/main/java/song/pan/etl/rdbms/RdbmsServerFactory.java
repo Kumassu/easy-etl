@@ -6,7 +6,7 @@ import song.pan.etl.common.exception.SystemException;
  * @author Song Pan
  * @version 1.0.0
  */
-public class RdbnsServerFactory {
+public class RdbmsServerFactory {
 
 
     public static RdbmsServer getServer(ConnectionProperties properties) {

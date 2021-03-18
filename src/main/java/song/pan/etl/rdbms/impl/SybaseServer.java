@@ -125,10 +125,25 @@ public class SybaseServer extends AbstractRdbmsServer {
     }
 
     @Override
-    public List<String> getCatalogs() {
+    public List<String> catalogs() {
         return getJdbcTemplate().queryForList("sp_helpdb").stream()
                 .map(e -> (String) e.get("name"))
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<String> tablesOf(String catalog) {
+        return getJdbcTemplate().queryForList("SELECT o.name table_name, u.name user_name FROM " +
+                catalog + "..sysobjects o, " + catalog + "..sysusers u WHERE o.uid = u.uid AND o.type = 'U'")
+                .stream().map(e -> (String) e.get("table_name")).collect(Collectors.toList());
+    }
+
+    @Override
+    public Table tableOf(String catalog, String name) {
+        Table table = new Table(catalog, name);
+        table.setColumns(columnsOf(table));
+        return table;
     }
 
     @Override
@@ -205,7 +220,13 @@ public class SybaseServer extends AbstractRdbmsServer {
         }
 
         String type = column.getType();
-        if (type.toLowerCase().contains("char") && column.getLength() > 0) {
+        if (column.getPrecision() > 0) {
+            if (column.getScale() > 0) {
+                type = type + "(" + column.getPrecision() + "," + column.getScale() + ")";
+            } else {
+                type = type + "(" + column.getPrecision() + ")";
+            }
+        } else if (column.getLength() > 0) {
             type = type + "(" + column.getLength() + ")";
         }
 
@@ -225,7 +246,26 @@ public class SybaseServer extends AbstractRdbmsServer {
         jdbcTemplate.update("USE " + table.getCatalog());
         return jdbcTemplate.queryForList("sp_columns " + table.getName())
                 .stream()
-                .map(e -> new Column((String) e.get("column_name"), (String) e.get("type_name"), null, (int) e.get("length")))
+                .map(e -> {
+                    Column column = new Column((String) e.get("column_name"), (String) e.get("type_name"));
+                    Object precision = e.get("precision");
+                    if (null != precision) {
+                        column.setPrecision(Integer.parseInt(precision.toString()));
+                    }
+                    Object length = e.get("length");
+                    if (null != length) {
+                        column.setLength(Integer.parseInt(length.toString()));
+                    }
+                    Object scale = e.get("scale");
+                    if (null != scale) {
+                        column.setScale(Integer.parseInt(scale.toString()));
+                    }
+                    Object nullable = e.get("nullable");
+                    if (null != nullable) {
+                        column.setNullable(((int) nullable) == 1);
+                    }
+                    return column;
+                })
                 .peek(this::setTypeIndex)
                 .collect(Collectors.toList());
     }

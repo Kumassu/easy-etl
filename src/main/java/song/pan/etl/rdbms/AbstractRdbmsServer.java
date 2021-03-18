@@ -165,18 +165,19 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
         return count;
     }
 
-    @Override
-    public void execute(String sql) {
-        getJdbcTemplate().update(sql);
-    }
 
     @Override
-    public void execute(String catalog, String sql) {
+    public long execute(String sql) {
+        return getJdbcTemplate().update(sql);
+    }
+
+
+    @Override
+    public long execute(String catalog, String sql) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate();
         jdbcTemplate.update("USE " + catalog);
-        jdbcTemplate.update(sql);
+        return jdbcTemplate.update(sql);
     }
-
 
 
     @Override
@@ -189,9 +190,12 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 Column column = new Column();
                 column.setName(metaData.getColumnName(i));
-                column.setTypeIndex(metaData.getColumnType(i));
                 column.setType(metaData.getColumnTypeName(i));
                 column.setLength(metaData.getColumnDisplaySize(i));
+                column.setScale(metaData.getScale(i));
+                column.setPrecision(metaData.getPrecision(i));
+                column.setNullable(metaData.isNullable(i) == 1);
+                column.setTypeIndex(typeOf(column.getType()).getTypeIndex());
                 columns.add(column);
             }
         } catch (Exception e) {
@@ -318,5 +322,6 @@ public abstract class AbstractRdbmsServer implements RdbmsServer {
         }
         column.setTypeIndex(dataType.getTypeIndex());
     }
+
 
 }

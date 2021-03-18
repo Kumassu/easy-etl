@@ -19,12 +19,15 @@ public class Column {
 
     private int length;
 
+    private int precision;
+
+    private int scale;
+
     private Boolean nullable;
 
     private Object defaultValue;
 
-    public Column() {
-    }
+    public Column() { }
 
     public Column(String name) {
         this.name = name;

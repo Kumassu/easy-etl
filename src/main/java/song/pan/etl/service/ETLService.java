@@ -16,10 +16,7 @@ import song.pan.etl.service.domain.ConflictStrategy;
 import song.pan.etl.service.domain.ETLConfig;
 import song.pan.etl.service.domain.ETLTask;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -220,6 +217,7 @@ public class ETLService {
         });
         task.getConfig().getSourceServer().disconnect();
         task.getConfig().getDestServer().disconnect();
+        task.getStatus().setEnd(new Date());
     }
 
     boolean closeThreadPool(ThreadPoolExecutor threadPool) {

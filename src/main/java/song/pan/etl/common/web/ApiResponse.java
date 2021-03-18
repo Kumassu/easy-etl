@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import song.pan.etl.common.exception.ErrorType;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ApiResponse<T> {

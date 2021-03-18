@@ -47,7 +47,13 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
     /**
      * @return all the catalogs (may also called database) of current server
      */
-    List<String> getCatalogs();
+    List<String> catalogs();
+
+
+    List<String> tablesOf(String catalog);
+
+
+    Table tableOf(String catalog, String name);
 
 
     boolean isTableExist(Table table);
@@ -90,14 +96,14 @@ public interface RdbmsServer extends AlivenessDetectable, Lifecycle, EasyConnect
      * Execute a DML/DDL script in default catalog
      * @param sql script to execute
      */
-    void execute(String sql);
+    long execute(String sql);
 
 
     /**
      * Execute a DML/DDL script in the specified catalog
      * @param sql script to execute
      */
-    void execute(String catalog, String sql);
+    long execute(String catalog, String sql);
 
 
     /**

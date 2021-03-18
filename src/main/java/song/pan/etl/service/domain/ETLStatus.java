@@ -1,5 +1,6 @@
 package song.pan.etl.service.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +23,9 @@ public class ETLStatus {
     private Boolean success;
 
     private Date start;
+    private Date end;
 
+    @JsonIgnore
     private List<Throwable> errors;
 
     public ETLStatus() {

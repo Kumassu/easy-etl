@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel("ETL Config")
+@ApiModel("ETL Task")
 public class ETLConfigVO {
 
 

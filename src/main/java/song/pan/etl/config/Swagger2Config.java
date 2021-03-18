@@ -38,6 +38,8 @@ public class Swagger2Config {
                 )
                 .groupName("OpenApi")
                 .tags(new Tag("ETL", "", 1))
+                .tags(new Tag("Metadata", "", 2))
+                .tags(new Tag("Commander", "", 3))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("song.pan.etl.controller"))
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))

@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -16,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Setter
 public class ETLTask {
 
+    private String id;
     private ETLConfig config;
     private ETLStatus status;
 
@@ -23,6 +25,7 @@ public class ETLTask {
     private List<ThreadPoolExecutor> threadPools;
 
     public ETLTask(ETLConfig config) {
+        this.id = UUID.randomUUID().toString();
         this.config = config;
         this.status = new ETLStatus();
         this.threadPools = new LinkedList<>();

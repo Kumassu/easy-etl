@@ -6,15 +6,18 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
+import song.pan.etl.common.util.CacheHolder;
+import song.pan.etl.common.web.ApiResponse;
 import song.pan.etl.controller.vo.ETLConfigVO;
-import song.pan.etl.controller.vo.ETLTaskVO;
 import song.pan.etl.rdbms.ConnectionProperties;
 import song.pan.etl.rdbms.RdbmsServer;
-import song.pan.etl.rdbms.RdbnsServerFactory;
+import song.pan.etl.rdbms.RdbmsServerFactory;
 import song.pan.etl.rdbms.element.Table;
 import song.pan.etl.service.ETLService;
 import song.pan.etl.service.domain.ETLConfig;
 import song.pan.etl.service.domain.ETLTask;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Song Pan
@@ -25,17 +28,29 @@ import song.pan.etl.service.domain.ETLTask;
 @Api(tags = "ETL")
 public class ETLController {
 
+
     @Autowired
     ETLService etlService;
 
-    @PostMapping("/v1/etl")
-    @ApiOperation("do etl")
-    public ETLTaskVO etl(@RequestBody ETLConfigVO vo) {
+
+    @PostMapping("/v1/tasks")
+    @ApiOperation("Create etl task")
+    public ApiResponse createTask(@RequestBody ETLConfigVO vo, @RequestParam(required = false, defaultValue = "true") boolean async) {
         ETLTask task = new ETLTask(map(vo));
-
+        CacheHolder.set(CacheHolder.CacheType.ETL_TASK, task.getId(), task);
+        if (async) {
+            CompletableFuture.runAsync(() -> etlService.execute(task));
+            return ApiResponse.ok(task.getId());
+        }
         etlService.execute(task);
+        return ApiResponse.ok(task);
+    }
 
-        return map(task);
+
+    @GetMapping("/v1/tasks/{id}")
+    @ApiOperation("Retrieve etl tasks")
+    public ApiResponse<ETLTask> getTasks(@PathVariable("id") String id) {
+        return ApiResponse.ok((ETLTask) CacheHolder.get(CacheHolder.CacheType.ETL_TASK, id));
     }
 
 
@@ -58,12 +73,14 @@ public class ETLController {
         ConnectionProperties srcProp = new ConnectionProperties();
         BeanUtils.copyProperties(source, srcProp);
 
-        RdbmsServer sourceServer = RdbnsServerFactory.getServer(srcProp);
+        RdbmsServer sourceServer = RdbmsServerFactory.getServer(srcProp);
         config.setSourceServer(sourceServer);
 
         config.setPaginationKeys(source.getPaginationKeys());
         config.setSourceServerPreScripts(source.getPreScripts());
         config.setSourceServerPostScripts(source.getPostScripts());
+
+        config.setQuery(source.getQuery());
 
         // source table
         Table srcTable = new Table();
@@ -77,7 +94,7 @@ public class ETLController {
         ConnectionProperties destProp = new ConnectionProperties();
         BeanUtils.copyProperties(destination, destProp);
 
-        RdbmsServer destServer = RdbnsServerFactory.getServer(destProp);
+        RdbmsServer destServer = RdbmsServerFactory.getServer(destProp);
         config.setDestServer(destServer);
 
         config.setTargetTablePostScripts(destination.getTargetTablePostScripts());
@@ -94,15 +111,5 @@ public class ETLController {
 
         return config;
     }
-
-    ETLTaskVO map(ETLTask task) {
-        ETLTaskVO vo = new ETLTaskVO();
-        BeanUtils.copyProperties(task, vo);
-        return vo;
-    }
-
-
-
-
 
 }

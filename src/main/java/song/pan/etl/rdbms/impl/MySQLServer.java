@@ -1,15 +1,12 @@
 package song.pan.etl.rdbms.impl;
 
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import song.pan.etl.common.exception.IllegalArgumentException;
 import song.pan.etl.common.exception.InvalidSQLException;
 import song.pan.etl.common.exception.SystemException;
-import song.pan.etl.rdbms.AbstractRdbmsServer;
-import song.pan.etl.rdbms.DataType;
-import song.pan.etl.rdbms.RdbmsType;
+import song.pan.etl.rdbms.*;
 import song.pan.etl.rdbms.element.*;
 
 import java.math.BigDecimal;
@@ -115,9 +112,22 @@ public class MySQLServer extends AbstractRdbmsServer {
     }
 
     @Override
-    public List<String> getCatalogs() {
+    public List<String> catalogs() {
         return getJdbcTemplate().queryForList("show databases").stream()
                 .map(e -> (String) e.get("Database")).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> tablesOf(String catalog) {
+        return getJdbcTemplate().queryForList("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES t WHERE t.TABLE_SCHEMA ='"
+                + catalog + "'").stream().map(e -> (String) e.get("TABLE_NAME")).collect(Collectors.toList());
+    }
+
+    @Override
+    public Table tableOf(String catalog, String name) {
+        Table table = new Table(catalog, name);
+        table.setColumns(columnsOf(table));
+        return table;
     }
 
     @Override
@@ -194,7 +204,13 @@ public class MySQLServer extends AbstractRdbmsServer {
         }
 
         String type = column.getType();
-        if (type.toLowerCase().contains("char") && column.getLength() > 0) {
+        if (column.getPrecision() > 0) {
+            if (column.getScale() > 0) {
+                type = type + "(" + column.getPrecision() + "," + column.getScale() + ")";
+            } else {
+                type = type + "(" + column.getPrecision() + ")";
+            }
+        } else if (column.getLength() > 0) {
             type = type + "(" + column.getLength() + ")";
         }
 
@@ -209,19 +225,27 @@ public class MySQLServer extends AbstractRdbmsServer {
 
     @Override
     public List<Column> columnsOf(Table table) {
-        return getJdbcTemplate().queryForList("desc " + fullQualifiedNameOf(table))
+        return getJdbcTemplate().queryForList("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + table.getName() +
+                "' AND TABLE_SCHEMA = '" + table.getCatalog() + "'")
                 .stream()
                 .map(e -> {
-                    String name = (String) e.get("Field");
-                    String type = (String) e.get("Type");
-                    String nullable = (String) e.get("Null");
-                    int length = 0;
-                    if (type.contains("(") && type.contains(")")) {
-                        length = Integer.parseInt(type.substring(type.indexOf("(") + 1, type.indexOf(")")));
-                        type = type.substring(0, type.indexOf("("));
+                    Column column = new Column((String) e.get("COLUMN_NAME"), (String) e.get("DATA_TYPE"));
+
+                    String nullable = (String) e.get("IS_NULLABLE");
+                    column.setNullable(nullable != null && nullable.equalsIgnoreCase("YES"));
+
+                    Object numericPrecision = e.get("NUMERIC_PRECISION");
+                    if (null != numericPrecision) {
+                        column.setPrecision(Integer.parseInt(numericPrecision.toString()));
                     }
-                    Column column = new Column(name, type, null, length);
-                    column.setNullable(nullable.toUpperCase().equals("YES"));
+                    Object numericScale = e.get("NUMERIC_SCALE");
+                    if (null != numericScale) {
+                        column.setScale(Integer.parseInt(numericScale.toString()));
+                    }
+                    Object characterMaximumLength = e.get("CHARACTER_MAXIMUM_LENGTH");
+                    if (null != characterMaximumLength) {
+                        column.setLength(Integer.parseInt(characterMaximumLength.toString()));
+                    }
                     return column;
                 })
                 .peek(this::setTypeIndex)
@@ -261,6 +285,22 @@ public class MySQLServer extends AbstractRdbmsServer {
     @Override
     public List<Row> query(String query, long offset, long limit) {
         return query(query + " limit " + offset + ", " + limit);
+    }
+
+
+
+    public static void main(String[] args) {
+        ConnectionProperties properties = new ConnectionProperties();
+        properties.setUrl("jdbc:mysql://localhost:3306/?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai");
+        properties.setDriver("com.mysql.cj.jdbc.Driver");
+        properties.setUser("root");
+        properties.setPassword("123456");
+        RdbmsServer server = RdbmsServerFactory.getServer(properties);
+
+        List<Column> columns = server.columnsOf("select * from world.country");
+
+        columns.forEach(System.out::println);
+
     }
 
 }
