@@ -573,7 +573,6 @@ public class ETLWorker {
         List<Row> rows = sourceServer.query(config.getQuery());
         Page page = new Page(1, rows);
         page.setExtractTimeMs(System.currentTimeMillis() - begin);
-        status.setCurrent(rows.size());
         getLoader().load(page);
     }
 
